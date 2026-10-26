@@ -6,7 +6,8 @@ load('ext://helm_resource', 'helm_resource')
 allow_k8s_contexts('k3d-shopwise')
 config.define_string_list('only')
 cfg = config.parse()
-only = cfg.get('only', [])
+# string_list does not split on commas; accept both `--only=a,b` and `--only=a --only=b`.
+only = [n.strip() for v in cfg.get('only', []) for n in v.split(',') if n.strip()]
 
 # ---------- infrastructure ----------
 helm_resource(
