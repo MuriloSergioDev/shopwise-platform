@@ -11,6 +11,8 @@ spec:
     metadata:
       labels: { app: {{ include "svc.fullname" . }}, role: scheduler }
     spec:
+      # Service links would inject REDIS_PORT=tcp://... and clobber Laravel's REDIS_PORT.
+      enableServiceLinks: false
       containers:
         - name: scheduler
           command: [php, artisan, schedule:work]

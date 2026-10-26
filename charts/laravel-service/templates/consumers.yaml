@@ -12,6 +12,8 @@ spec:
     metadata:
       labels: { app: {{ include "svc.fullname" $ }}, role: consumer, consumer: {{ .name }} }
     spec:
+      # Service links would inject REDIS_PORT=tcp://... and clobber Laravel's REDIS_PORT.
+      enableServiceLinks: false
       containers:
         - name: consumer
           command: [php, artisan, shopwise:consume{{ range .topics }}, {{ . }}{{ end }}]

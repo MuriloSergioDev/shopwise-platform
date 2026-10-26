@@ -4,6 +4,8 @@
 - { name: APP_NAME, value: {{ .Values.name | quote }} }
 - { name: APP_ENV, value: local }
 - { name: APP_DEBUG, value: "true" }
+# Deterministic local-only key (32 bytes); real secrets never live in this chart.
+- { name: APP_KEY, value: {{ printf "base64:%s" (sha256sum .Values.name | trunc 32 | b64enc) | quote }} }
 - { name: SERVICE_NAME, value: {{ .Values.name | quote }} }
 - { name: DB_CONNECTION, value: pgsql }
 - { name: DB_HOST, value: postgres }

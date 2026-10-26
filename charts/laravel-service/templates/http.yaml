@@ -19,6 +19,8 @@ spec:
     metadata:
       labels: { app: {{ include "svc.fullname" . }}, role: http }
     spec:
+      # Service links would inject REDIS_PORT=tcp://... and clobber Laravel's REDIS_PORT.
+      enableServiceLinks: false
       {{- if .Values.migrateOnStart }}
       initContainers:
         - name: migrate
