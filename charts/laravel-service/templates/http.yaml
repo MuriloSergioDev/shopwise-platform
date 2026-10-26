@@ -1,0 +1,36 @@
+{{- if .Values.http.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "svc.fullname" . }}
+spec:
+  selector: { app: {{ include "svc.fullname" . }}, role: http }
+  ports: [{ port: 8000, targetPort: {{ .Values.http.port }} }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "svc.fullname" . }}-http
+  labels: { app: {{ include "svc.fullname" . }}, role: http }
+spec:
+  selector:
+    matchLabels: { app: {{ include "svc.fullname" . }}, role: http }
+  template:
+    metadata:
+      labels: { app: {{ include "svc.fullname" . }}, role: http }
+    spec:
+      {{- if .Values.migrateOnStart }}
+      initContainers:
+        - name: migrate
+          command: [php, artisan, migrate, --force]
+          {{- include "svc.container" (dict "root" .) | nindent 10 }}
+      {{- end }}
+      containers:
+        - name: http
+          command: [php, artisan, octane:frankenphp, --host=0.0.0.0, --port={{ .Values.http.port }}, --workers={{ .Values.http.workers }}, --max-requests=500]
+          ports: [{ containerPort: {{ .Values.http.port }} }]
+          readinessProbe:
+            httpGet: { path: /up, port: {{ .Values.http.port }} }
+            periodSeconds: 5
+          {{- include "svc.container" (dict "root" .) | nindent 10 }}
+{{- end }}

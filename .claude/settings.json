@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "shopwise": { "source": { "source": "directory", "path": "." } }
+  },
+  "enabledPlugins": { "shopwise@shopwise": true },
+  "permissions": {
+    "allow": [
+      "Bash(helm lint:*)",
+      "Bash(helm template:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(kubectl logs:*)",
+      "Bash(tilt get:*)",
+      "Bash(tilt logs:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh pr view:*)"
+    ]
+  }
+}

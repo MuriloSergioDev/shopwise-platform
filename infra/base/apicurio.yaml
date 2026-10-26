@@ -1,0 +1,34 @@
+# Apicurio Registry 3 backed by Postgres. Kafka UI talks to it through the Confluent-compatible API.
+apiVersion: v1
+kind: Service
+metadata:
+  name: apicurio
+spec:
+  selector: { app: apicurio }
+  ports: [{ port: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apicurio
+spec:
+  selector:
+    matchLabels: { app: apicurio }
+  template:
+    metadata:
+      labels: { app: apicurio }
+    spec:
+      containers:
+        - name: apicurio
+          image: apicurio/apicurio-registry:3.3.3
+          ports: [{ containerPort: 8080 }]
+          env:
+            - { name: APICURIO_STORAGE_KIND, value: sql }
+            - { name: APICURIO_STORAGE_SQL_KIND, value: postgresql }
+            - { name: APICURIO_DATASOURCE_URL, value: "jdbc:postgresql://postgres:5432/apicurio" }
+            - { name: APICURIO_DATASOURCE_USERNAME, value: apicurio }
+            - { name: APICURIO_DATASOURCE_PASSWORD, value: apicurio }
+            - { name: APICURIO_REST_DELETION_ARTIFACT_ENABLED, value: "true" }
+          readinessProbe:
+            httpGet: { path: /apis/registry/v3/system/info, port: 8080 }
+            periodSeconds: 10

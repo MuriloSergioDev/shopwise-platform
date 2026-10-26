@@ -1,0 +1,11 @@
+{
+  "name": "shopwise",
+  "owner": { "name": "MuriloSergioDev" },
+  "plugins": [
+    {
+      "name": "shopwise",
+      "source": "./claude-plugin",
+      "description": "Shared Shopwise conventions: subagents, skills and guard/format hooks for every Shopwise repo."
+    }
+  ]
+}

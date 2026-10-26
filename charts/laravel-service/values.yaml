@@ -1,0 +1,24 @@
+# name: short service name, e.g. "catalog". Also used as DB name/user (local only).
+name: ""
+image: ""
+http:
+  enabled: true
+  workers: 1
+  port: 8000
+# Each consumer becomes its own Deployment running `php artisan shopwise:consume <topics...>`
+# (consumer group = service name; handlers mapped in config/messaging.php).
+consumers: []
+#  - name: pinged
+#    topics: [platform.pinged]
+scheduler:
+  # Runs `php artisan schedule:work` (outbox relay, reservation expiry, ...).
+  enabled: true
+migrateOnStart: true
+# Topics this service OWNS (it is the only producer). Rendered as Strimzi KafkaTopic resources.
+topics: []
+#  - name: platform.pinged
+#    partitions: 3
+env: {}
+resources:
+  requests: { cpu: 50m, memory: 128Mi }
+  limits: { memory: 384Mi }

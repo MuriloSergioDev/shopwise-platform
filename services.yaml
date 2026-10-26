@@ -1,0 +1,16 @@
+# Laravel services Tilt knows about. Each entry maps to ../shopwise-<name>; missing folders are skipped.
+# port = local port-forward for the HTTP pod.
+services:
+  - { name: ping, repo: shopwise-service-template, port: 8100 }
+  - { name: identity, port: 8101 }
+  - { name: catalog, port: 8102 }
+  - { name: inventory, port: 8103 }
+  - { name: pricing, port: 8104 }
+  - { name: cart, port: 8105 }
+  - { name: checkout, port: 8106 }
+  - { name: payments, port: 8107 }
+  - { name: orders, port: 8108 }
+  - { name: notifications, port: 8109 }
+frontends:
+  - { name: storefront, port: 3000 }
+  - { name: admin, port: 3001 }

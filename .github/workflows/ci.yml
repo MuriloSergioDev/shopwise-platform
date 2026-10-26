@@ -1,0 +1,33 @@
+# CI for this repo: validate Helm chart, Tiltfile-referenced manifests, plugin hooks.
+name: ci
+on:
+  pull_request:
+  push: { branches: [main] }
+
+jobs:
+  hygiene:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/pr-hygiene.yml
+
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: azure/setup-helm@v4
+      - run: helm lint charts/laravel-service --set name=ci,image=ci
+      - name: Render chart with all features
+        run: >
+          helm template t charts/laravel-service --set name=ci,image=ci
+          --set 'consumers[0].name=a,consumers[0].topics[0]=x.y' --set 'topics[0].name=x.y' > /dev/null
+      - uses: actions/setup-node@v7
+        with: { node-version: 24 }
+      - name: Hook scripts parse and block a force push
+        run: |
+          for f in claude-plugin/hooks/*.mjs; do node --check "$f"; done
+          echo '{"tool_input":{"command":"git push --force"}}' | node claude-plugin/hooks/guard-command.mjs && exit 1 || test $? -eq 2
+
+  release:
+    if: github.event_name == 'push'
+    needs: validate
+    uses: ./.github/workflows/release.yml
+    permissions: { contents: write, pull-requests: write }

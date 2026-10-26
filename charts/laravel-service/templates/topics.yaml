@@ -1,0 +1,16 @@
+{{- range $topic := .Values.topics }}
+{{- range $suffix := list "" ".dlq" }}
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+metadata:
+  name: {{ printf "%s%s" $topic.name $suffix | replace "." "-" }}
+  labels:
+    strimzi.io/cluster: shopwise
+    shopwise.dev/owner: {{ include "svc.fullname" $ }}
+spec:
+  topicName: {{ printf "%s%s" $topic.name $suffix }}
+  partitions: {{ $topic.partitions | default 3 }}
+  replicas: 1
+{{- end }}
+{{- end }}

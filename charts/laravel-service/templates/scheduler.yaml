@@ -1,0 +1,18 @@
+{{- if .Values.scheduler.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "svc.fullname" . }}-scheduler
+  labels: { app: {{ include "svc.fullname" . }}, role: scheduler }
+spec:
+  selector:
+    matchLabels: { app: {{ include "svc.fullname" . }}, role: scheduler }
+  template:
+    metadata:
+      labels: { app: {{ include "svc.fullname" . }}, role: scheduler }
+    spec:
+      containers:
+        - name: scheduler
+          command: [php, artisan, schedule:work]
+          {{- include "svc.container" (dict "root" .) | nindent 10 }}
+{{- end }}

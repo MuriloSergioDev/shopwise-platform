@@ -1,0 +1,12 @@
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
+pre-commit:
+  commands:
+    helm:
+      glob: "charts/**"
+      run: helm lint charts/laravel-service --set name=x,image=x
+    hooks:
+      glob: "claude-plugin/hooks/*.mjs"
+      run: node --check {staged_files}

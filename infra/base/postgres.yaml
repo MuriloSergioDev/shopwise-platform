@@ -1,0 +1,60 @@
+# One Postgres instance, one database + role per service (database-per-service, ADR-0001).
+# Credentials are local-dev only and intentionally equal to the service name.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+data:
+  init.sh: |
+    #!/bin/sh
+    set -e
+    for svc in ping identity catalog inventory pricing cart checkout payments orders notifications apicurio; do
+      psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" <<SQL
+    CREATE ROLE $svc LOGIN PASSWORD '$svc';
+    CREATE DATABASE $svc OWNER $svc;
+    REVOKE ALL ON DATABASE $svc FROM PUBLIC;
+    SQL
+    done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  selector: { app: postgres }
+  ports: [{ port: 5432 }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels: { app: postgres }
+  template:
+    metadata:
+      labels: { app: postgres }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:18-alpine
+          env:
+            - { name: POSTGRES_USER, value: postgres }
+            - { name: POSTGRES_PASSWORD, value: postgres }
+          ports: [{ containerPort: 5432 }]
+          readinessProbe:
+            exec: { command: [pg_isready, -U, postgres] }
+            periodSeconds: 5
+          volumeMounts:
+            - { name: data, mountPath: /var/lib/postgresql }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d }
+      volumes:
+        - name: init
+          configMap: { name: postgres-init, defaultMode: 0755 }
+  volumeClaimTemplates:
+    - metadata: { name: data }
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources: { requests: { storage: 5Gi } }

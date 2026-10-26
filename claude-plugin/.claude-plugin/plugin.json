@@ -1,0 +1,6 @@
+{
+  "name": "shopwise",
+  "version": "0.1.0",
+  "description": "Shared Shopwise conventions: subagents, skills and guard/format hooks for every Shopwise repo.",
+  "author": { "name": "MuriloSergioDev" }
+}

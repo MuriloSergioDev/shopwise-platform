@@ -1,0 +1,19 @@
+{{- range .Values.consumers }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "svc.fullname" $ }}-consumer-{{ .name }}
+  labels: { app: {{ include "svc.fullname" $ }}, role: consumer }
+spec:
+  selector:
+    matchLabels: { app: {{ include "svc.fullname" $ }}, role: consumer, consumer: {{ .name }} }
+  template:
+    metadata:
+      labels: { app: {{ include "svc.fullname" $ }}, role: consumer, consumer: {{ .name }} }
+    spec:
+      containers:
+        - name: consumer
+          command: [php, artisan, shopwise:consume{{ range .topics }}, {{ . }}{{ end }}]
+          {{- include "svc.container" (dict "root" $) | nindent 10 }}
+{{- end }}

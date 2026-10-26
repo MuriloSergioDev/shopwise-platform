@@ -1,0 +1,17 @@
+# k3d cluster for local development. Create with: k3d cluster create --config k3d/cluster.yaml
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: shopwise
+servers: 1
+agents: 0
+registries:
+  create:
+    name: shopwise-registry
+    host: "0.0.0.0"
+    hostPort: "5005"
+options:
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters: [server:*]
