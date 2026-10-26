@@ -23,6 +23,10 @@
 - { name: KAFKA_CONSUMER_GROUP_ID, value: {{ .Values.name | quote }} }
 - { name: SCHEMA_REGISTRY_URL, value: "http://apicurio:8080/apis/registry/v3" }
 - { name: IDENTITY_JWKS_URL, value: "http://identity:8000/.well-known/jwks.json" }
+# In-cluster base URLs for service-to-service REST (checkout -> cart/pricing, ...).
+{{- range list "identity" "catalog" "inventory" "pricing" "cart" "checkout" "payments" "orders" "notifications" }}
+- { name: {{ upper . }}_URL, value: {{ printf "http://%s:8000" . | quote }} }
+{{- end }}
 - { name: OTEL_PHP_AUTOLOAD_ENABLED, value: "true" }
 - { name: OTEL_SERVICE_NAME, value: {{ .Values.name | quote }} }
 - { name: OTEL_TRACES_EXPORTER, value: otlp }

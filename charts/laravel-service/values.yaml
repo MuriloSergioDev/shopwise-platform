@@ -13,6 +13,11 @@ consumers: []
 scheduler:
   # Runs `php artisan schedule:work` (outbox relay, reservation expiry, ...).
   enabled: true
+queue:
+  # Runs `php artisan queue:work` on QUEUE_CONNECTION (database) for services that dispatch jobs (mails, ...).
+  enabled: false
+  tries: 4
+  backoff: 10
 migrateOnStart: true
 # Topics this service OWNS (it is the only producer). Rendered as Strimzi KafkaTopic resources.
 topics: []

@@ -1,0 +1,20 @@
+{{- if .Values.queue.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "svc.fullname" . }}-queue
+  labels: { app: {{ include "svc.fullname" . }}, role: queue }
+spec:
+  selector:
+    matchLabels: { app: {{ include "svc.fullname" . }}, role: queue }
+  template:
+    metadata:
+      labels: { app: {{ include "svc.fullname" . }}, role: queue }
+    spec:
+      # Service links would inject REDIS_PORT=tcp://... and clobber Laravel's REDIS_PORT.
+      enableServiceLinks: false
+      containers:
+        - name: queue
+          command: [php, artisan, queue:work, --tries={{ .Values.queue.tries }}, --backoff={{ .Values.queue.backoff }}]
+          {{- include "svc.container" (dict "root" .) | nindent 10 }}
+{{- end }}
