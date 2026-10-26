@@ -1,2 +1,4 @@
 node_modules/
 .DS_Store
+# Local secrets (Stripe test keys, ...): see secrets/README.md
+secrets/*.env

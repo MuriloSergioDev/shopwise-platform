@@ -1,16 +1,29 @@
 # Laravel services Tilt knows about. Each entry maps to ../shopwise-<name>; missing folders are skipped.
-# port = local port-forward for the HTTP pod.
+# port   = local port-forward for the HTTP pod.
+# topics = topics the service OWNS: the events it produces and the commands it receives (ADR-0004). The service's own
+#          deploy/values.yaml `topics` wins; Tilt creates the ones it doesn't declare, even when the owner isn't
+#          running, so producers and consumers of other services never hit a missing topic.
+# set    = extra Helm values until the service's own deploy/values.yaml carries them.
 services:
-  - { name: ping, repo: shopwise-service-template, port: 8100 }
-  - { name: identity, port: 8101 }
-  - { name: catalog, port: 8102 }
-  - { name: inventory, port: 8103 }
-  - { name: pricing, port: 8104 }
-  - { name: cart, port: 8105 }
-  - { name: checkout, port: 8106 }
-  - { name: payments, port: 8107 }
-  - { name: orders, port: 8108 }
-  - { name: notifications, port: 8109 }
+  - { name: ping, repo: shopwise-service-template, port: 8100, topics: [platform.pinged] }
+  - { name: identity, port: 8101, topics: [identity.customer-registered] }
+  - { name: catalog, port: 8102, topics: [catalog.product-published, catalog.variant-changed] }
+  - name: inventory
+    port: 8103
+    topics: [inventory.reserve-stock, inventory.commit-reservation, inventory.release-reservation,
+             inventory.stock-reserved, inventory.reservation-failed, inventory.reservation-committed,
+             inventory.reservation-released, inventory.stock-level-changed]
+  - { name: pricing, port: 8104, topics: [pricing.price-changed] }
+  - { name: cart, port: 8105, topics: [cart.cart-checked-out] }
+  - { name: checkout, port: 8106, topics: [checkout.completed, checkout.failed] }
+  - name: payments
+    port: 8107
+    topics: [payments.request-payment, payments.refund-payment, payments.payment-succeeded,
+             payments.payment-failed, payments.refunded]
+    # `stripe listen` forwards test-mode webhooks here (see the stripe-listen resource in the Tiltfile).
+    webhook: /api/webhooks/stripe
+  - { name: orders, port: 8108, topics: [orders.place-order, orders.order-placed, orders.order-rejected, orders.order-shipped] }
+  - { name: notifications, port: 8109, topics: [], set: [queue.enabled=true] }
 frontends:
-  - { name: storefront, port: 3000 }
-  - { name: admin, port: 3001 }
+  - { name: storefront, port: 3000, deps: [identity, catalog, pricing, cart, checkout, orders] }
+  - { name: admin, port: 3001, deps: [identity, catalog, pricing, inventory, orders] }
