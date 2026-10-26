@@ -8,6 +8,7 @@ jobs:
   hygiene:
     if: github.event_name == 'pull_request'
     uses: ./.github/workflows/pr-hygiene.yml
+    permissions: { pull-requests: read }
 
   validate:
     runs-on: ubuntu-latest
