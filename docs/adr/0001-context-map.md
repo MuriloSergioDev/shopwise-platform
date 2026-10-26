@@ -2,6 +2,7 @@
 
 - Status: accepted
 - Date: 2026-10-26
+- Amended by: ADR-0004 (checkout saga topics)
 
 ## Context
 Shopwise is a learning project for microservices. We split the backend by bounded context, one Laravel
@@ -12,12 +13,12 @@ service and one database per context, communicating mainly through Kafka events.
 |---|---|---|---|
 | identity | customers, credentials, roles, JWT signing keys | `identity.customer-registered.v1` | – |
 | catalog | products, variants, categories, media, search index | `catalog.product-published.v1`, `catalog.variant-changed.v1` | – |
-| inventory | stock levels, reservations | `inventory.stock-reserved.v1`, `inventory.reservation-failed.v1`, `inventory.reservation-released.v1` | `catalog.variant-changed.v1`, checkout commands |
-| pricing | prices, coupons | `pricing.price-changed.v1` | `catalog.product-published.v1`, `catalog.variant-changed.v1` |
+| inventory | stock levels, reservations | `inventory.stock-reserved.v1`, `inventory.reservation-failed.v1`, `inventory.reservation-committed.v1`, `inventory.reservation-released.v1`, `inventory.stock-level-changed.v1` | `catalog.variant-changed.v1`, checkout commands |
+| pricing | prices, coupons, coupon redemptions | `pricing.price-changed.v1` | `catalog.product-published.v1`, `catalog.variant-changed.v1`, `checkout.completed.v1` |
 | cart | carts | `cart.cart-checked-out.v1` | `catalog.*`, `pricing.price-changed.v1` |
 | checkout | checkout sagas | commands to inventory/payments/orders, `checkout.completed.v1`, `checkout.failed.v1` | replies from inventory/payments/orders |
 | payments | payment intents, refunds | `payments.payment-succeeded.v1`, `payments.payment-failed.v1`, `payments.refunded.v1` | checkout commands, Stripe webhooks |
-| orders | orders, fulfilment | `orders.order-placed.v1`, `orders.order-shipped.v1` | checkout commands |
+| orders | orders, fulfilment | `orders.order-placed.v1`, `orders.order-rejected.v1`, `orders.order-shipped.v1` | checkout commands |
 | notifications | mail log | – | `identity.*`, `orders.*`, `payments.refunded.v1` |
 
 Rules:
