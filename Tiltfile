@@ -27,7 +27,8 @@ k8s_yaml(['infra/base/postgres.yaml', 'infra/base/redis.yaml', 'infra/base/mailp
 k8s_resource('postgres', port_forwards='5432:5432', labels=['infra'])
 k8s_resource('redis', labels=['infra'])
 k8s_resource('mailpit', port_forwards='8025:8025', labels=['infra'], links=[link('http://localhost:8025', 'Mailpit')])
-k8s_resource('lgtm', port_forwards='3030:3000', labels=['infra'], links=[link('http://localhost:3030', 'Grafana')])
+# 4318: OTLP/HTTP for processes on the host (the storefront and admin BFFs under `pnpm dev`).
+k8s_resource('lgtm', port_forwards=['3030:3000', '4318:4318'], labels=['infra'], links=[link('http://localhost:3030', 'Grafana')])
 k8s_resource('apicurio', port_forwards='8081:8080', resource_deps=['postgres'], labels=['infra'])
 k8s_resource(new_name='kafka', objects=['shopwise:kafka', 'dual-role:kafkanodepool'],
              resource_deps=['strimzi-operator'], labels=['infra'],

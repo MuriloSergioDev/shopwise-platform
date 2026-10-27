@@ -17,6 +17,7 @@ tilt up -- --repos=../..                        # from a git worktree (.worktree
 |---|---|
 | Tilt | http://localhost:10350 |
 | Grafana (traces/logs/metrics) | http://localhost:3030 |
+| OTLP/HTTP collector (host BFFs) | http://localhost:4318 |
 | Kafka UI | http://localhost:8082 |
 | Mailpit | http://localhost:8025 |
 | Apicurio registry API | http://localhost:8081 |
