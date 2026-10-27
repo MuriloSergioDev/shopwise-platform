@@ -19,10 +19,13 @@ services:
   - name: payments
     port: 8107
     topics: [payments.request-payment, payments.refund-payment, payments.payment-succeeded,
-             payments.payment-failed, payments.refunded]
+             payments.payment-failed, payments.refunded, payments.payment-requires-action]
     # `stripe listen` forwards test-mode webhooks here (see the stripe-listen resource in the Tiltfile).
     webhook: /api/webhooks/stripe
-  - { name: orders, port: 8108, topics: [orders.place-order, orders.order-placed, orders.order-rejected, orders.order-shipped] }
+  - name: orders
+    port: 8108
+    topics: [orders.place-order, orders.order-placed, orders.order-rejected, orders.order-shipped,
+             orders.cancel-order, orders.order-cancelled]
   - { name: notifications, port: 8109, topics: [], set: [queue.enabled=true] }
 frontends:
   - { name: storefront, port: 3000, deps: [identity, catalog, pricing, cart, checkout, orders] }
