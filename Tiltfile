@@ -71,7 +71,12 @@ for svc in registry['services']:
     docker_build(
         image, path, target='dev',
         ignore=['vendor', 'node_modules', 'storage/logs', '.git'],
+        # Live sync reaches every pod of the image, but only Octane reloads: consumers and queue workers keep the
+        # code they started with, and migrations run only in the http pod's init container. So a new migration or a
+        # changed chart rebuilds the image (fresh pods, migrate, every process restarted); after other changes,
+        # `tilt trigger <svc>-http` does the same when a consumer must pick them up.
         live_update=[
+            fall_back_on([path + '/database/migrations', path + '/deploy', path + '/config']),
             sync(path, '/app'),
             run('composer install --no-interaction', trigger=[path + '/composer.json', path + '/composer.lock']),
             run('php artisan octane:reload || true'),
