@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/MuriloSergioDev/shopwise-platform/compare/v1.0.0...v1.1.0) (2026-10-27)
+
+
+### Features
+
+* **tilt:** create payment-requires-action, cancel-order and order-cancelled topics ([df49e56](https://github.com/MuriloSergioDev/shopwise-platform/commit/df49e56f8a9eb9dfe36eccd7302adaa2e2c73adf))
+
+
+### Bug Fixes
+
+* **tilt:** rebuild the image when migrations, config or chart values change ([42969da](https://github.com/MuriloSergioDev/shopwise-platform/commit/42969da4ce007ae0a66ffae4c1e9f40ec72d9d3a))
+
 ## 1.0.0 (2026-10-27)
 
 
