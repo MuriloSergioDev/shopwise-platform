@@ -17,9 +17,9 @@ service and one database per context, communicating mainly through Kafka events.
 | pricing | prices, coupons, coupon redemptions | `pricing.price-changed.v1` | `catalog.product-published.v1`, `catalog.variant-changed.v1`, `checkout.completed.v1` |
 | cart | carts | `cart.cart-checked-out.v1` | `catalog.*`, `pricing.price-changed.v1` |
 | checkout | checkout sagas | commands to inventory/payments/orders, `checkout.completed.v1`, `checkout.failed.v1` | replies from inventory/payments/orders |
-| payments | payment intents, refunds | `payments.payment-succeeded.v1`, `payments.payment-failed.v1`, `payments.refunded.v1` | checkout commands, Stripe webhooks |
-| orders | orders, fulfilment | `orders.order-placed.v1`, `orders.order-rejected.v1`, `orders.order-shipped.v1` | checkout commands |
-| notifications | mail log | – | `identity.*`, `orders.*`, `payments.refunded.v1` |
+| payments | payment intents, refunds | `payments.payment-succeeded.v1`, `payments.payment-failed.v1`, `payments.payment-requires-action.v1`, `payments.refunded.v1` | checkout commands, Stripe webhooks |
+| orders | orders, fulfilment | `orders.order-placed.v1`, `orders.order-rejected.v1`, `orders.order-cancelled.v1`, `orders.order-shipped.v1` | checkout commands |
+| notifications | mail log | – | `identity.*`, `orders.*` (incl. `order-cancelled`), `payments.refunded.v1` |
 
 Rules:
 1. A service never reads another service's database. Data it needs is copied from events (local read models) or fetched over REST when freshness matters (checkout → pricing quote, checkout → cart snapshot).

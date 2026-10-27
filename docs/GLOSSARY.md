@@ -13,15 +13,17 @@
 | Cart | Mutable list of SKUs + quantities, owned by a guest token or customer. | cart |
 | Checkout | Saga that turns a cart into an order: reserve → pay → place. | checkout |
 | Payment | Stripe PaymentIntent tracked by payments; succeeds, fails or is refunded. | payments |
-| Order | Immutable record of what was bought and at what price; has a fulfilment status. | orders |
+| Order | Immutable record of what was bought and at what price; has a status (placed, shipped, or cancelled by saga compensation). | orders |
 | Compensation | Saga step that undoes a previous step (release reservation, refund). | checkout |
 | Saga | Long-running checkout process made of local steps, each with a compensation; orchestrated by checkout (ADR-0004). | checkout |
-| Saga state | Where a checkout is: reserving, paying, committing_stock, placing_order, closing_cart, completed, or compensating → failed. | checkout |
+| Saga state | Where a checkout is: reserving, paying, awaiting_payment_action, committing_stock, placing_order, closing_cart, completed, or compensating → failed. | checkout |
+| Payment action | A step the customer must finish in the browser (3-D Secure) before a payment can succeed; the checkout waits in awaiting_payment_action with the client secret. | payments |
 | Command | Kafka message asking one service to do something (`inventory.reserve-stock`); topic and schema owned by the receiver. | receiver |
 | Reply | Event a receiver publishes as the outcome of a command, carrying the checkoutId it answers. | receiver |
 | Correlation id | The `checkoutId` carried by every saga command and reply. | checkout |
 | Idempotency key | Value that makes a repeated request do the work once: `Idempotency-Key` on start checkout, `checkout-{id}-pay` on Stripe calls. | every service |
-| Cart snapshot | Copy of a cart's lines, coupon and version taken when a checkout starts; later cart edits do not change it. | cart |
+| Cart snapshot | Copy of a cart's lines, coupon and version taken when a checkout starts; taking it locks the cart. | cart |
+| Cart lock | Hold a checkout puts on its cart from the snapshot until the checkout fails or the cart closes; edits answer 409 cart_locked. | cart |
 | Checked-out cart | Cart closed by a completed checkout; the customer gets a fresh cart on next access. | cart |
 | Quote | Pricing's read-only calculation of lines, discount and total for a set of SKUs and an optional coupon. | pricing |
 | Redemption | Record that a customer used a coupon in a completed checkout; drives per-customer and total limits. | pricing |
